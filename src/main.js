@@ -7,9 +7,6 @@ import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 // 导入裁剪工具
 import VueCropper from 'vue-cropper'
-//导入需要被全局注册的组件
-import count from '@/components/count.vue'
-Vue.component('mycount',count)
 
 Vue.config.productionTip = false
 Vue.use(ElementUI);

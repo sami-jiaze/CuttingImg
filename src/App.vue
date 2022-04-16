@@ -3,11 +3,17 @@
     <el-container>
       <el-header>上传图片</el-header>
       <el-main>
-        <el-upload class="upload-demo" action="" drag :auto-upload="false" :show-file-list="false" :on-change='handleChangeUpload'>
+
+        <el-upload class="upload-demo" 
+        action="http://124.221.114.203:8080/api/uploadfile" drag 
+        :auto-upload="false" 
+        :show-file-list="false" 
+        :on-change='handleChangeUpload'>
           <i class="el-icon-upload"></i>
           <div class="el-upload__text">点击上传</div>
           <div class="el-upload__tip">支持绝大多数图片格式，单张图片最大支持5MB</div>
         </el-upload>
+
       </el-main>
     </el-container>
     <!-- vueCropper 剪裁图片实现-->
@@ -50,10 +56,18 @@
       </div>
     </el-dialog>
 
+    <div>
+        <img :src="previewImg" alt="">
+        <button v-show="previewImg!=='' " >上传</button>
+        <button v-show="previewImg!=='' " @click="clearImg">清除图片</button>
+    </div>
+
   </div>
 </template>
 
 <script>
+import {reqUpload} from '@/api/index.js'
+import axios from 'axios'
 export default {
   name: 'Cropper',
   data() {
@@ -81,7 +95,10 @@ export default {
         infoTrue: true // true 为展示真实输出图片宽高 false 展示看到的截图框宽高
       },
       // 防止重复提交
-      loading: false
+      loading: false,
+      addForm: {
+        image:''
+      }
     }
   },
   methods: {
@@ -97,6 +114,12 @@ export default {
         this.$message.error('上传头像图片大小不能超过 2MB!')
         return false
       }
+
+      let formdata = new FormData()
+      fileList.map(item => { //fileList本来就是数组，就不用转为真数组了
+        formdata.append("file", item.raw)  //将每一个文件图片都加进formdata
+      })
+       axios.post("http://124.221.114.203:8080/api/uploadfile", formdata).then(res => { console.log(res) })
       // 上传成功后将图片地址赋值给裁剪框显示图片
       this.$nextTick(async () => {
         // base64方式
@@ -141,6 +164,9 @@ export default {
     clearImgHandle() {
       this.option.img = ''
     },
+    clearImg() {
+      this.previewImg=''
+    },
     // 截图框移动回调函数
     cropMoving(data) {
       // 截图框的左上角 x，y和右下角坐标x，y
@@ -154,6 +180,7 @@ export default {
         this.dialogVisible = false
         this.previewImg = URL.createObjectURL(blob)
         this.isPreview = true
+        
       })
       // 获取截图的 base64 数据
       // this.$refs.cropper.getCropData(data => {
